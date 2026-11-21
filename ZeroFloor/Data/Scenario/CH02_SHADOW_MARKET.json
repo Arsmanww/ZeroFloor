@@ -234,11 +234,11 @@
       {
         "nodeId": "CH02_SC02_D_R3_DIRECT_SETUP",
         "speaker": "gosha_kovalchuk",
-        "text": "Итоговая цена озвучена. Берёшь или нет? Время — тоже товар, Орлов, а у меня его не вагон.",
+        "text": "Вот окончательная цена, Орлов.",
         "choices": [
           {
             "choiceId": "CH02_SC02_C003D_PAY",
-            "text": "Заплатить честно",
+            "text": "Купить чип",
             "effects": [
               {
                 "type": "addStat",
@@ -252,39 +252,17 @@
               }
             ],
             "nextNodeId": "CH02_SC02_D_PAY_OUTCOME"
-          },
-          {
-            "choiceId": "CH02_SC02_C003D_STEAL",
-            "text": "Украсть чип",
-            "effects": [
-              {
-                "type": "addStat",
-                "key": "R",
-                "value": 15
-              },
-              {
-                "type": "addStat",
-                "key": "H",
-                "value": -10
-              },
-              {
-                "type": "setFlag",
-                "key": "gosha_trust",
-                "value": false
-              }
-            ],
-            "nextNodeId": "CH02_SC02_D_STEAL_ATTEMPT"
           }
         ]
       },
       {
         "nodeId": "CH02_SC02_D_R3_HAGGLE_ONCE_SETUP",
         "speaker": "gosha_kovalchuk",
-        "text": "Итоговая цена озвучена. Берёшь или нет? Время — тоже товар, Орлов, а у меня его не вагон.",
+        "text": "Вот окончательная цена, Орлов.",
         "choices": [
           {
             "choiceId": "CH02_SC02_C003O_PAY",
-            "text": "Заплатить честно",
+            "text": "Купить чип",
             "effects": [
               {
                 "type": "addStat",
@@ -298,39 +276,17 @@
               }
             ],
             "nextNodeId": "CH02_SC02_D_PAY_OUTCOME"
-          },
-          {
-            "choiceId": "CH02_SC02_C003O_STEAL",
-            "text": "Украсть чип",
-            "effects": [
-              {
-                "type": "addStat",
-                "key": "R",
-                "value": 15
-              },
-              {
-                "type": "addStat",
-                "key": "H",
-                "value": -10
-              },
-              {
-                "type": "setFlag",
-                "key": "gosha_trust",
-                "value": false
-              }
-            ],
-            "nextNodeId": "CH02_SC02_D_STEAL_ATTEMPT"
           }
         ]
       },
       {
         "nodeId": "CH02_SC02_D_R3_HAGGLE_TWICE_SETUP",
         "speaker": "gosha_kovalchuk",
-        "text": "Итоговая цена озвучена. Берёшь или нет? Время — тоже товар, Орлов, а у меня его не вагон.",
+        "text": "Вот окончательная цена, Орлов.",
         "choices": [
           {
             "choiceId": "CH02_SC02_C003T_PAY",
-            "text": "Заплатить честно",
+            "text": "Купить чип",
             "effects": [
               {
                 "type": "addStat",
@@ -344,28 +300,6 @@
               }
             ],
             "nextNodeId": "CH02_SC02_D_PAY_OUTCOME"
-          },
-          {
-            "choiceId": "CH02_SC02_C003T_STEAL",
-            "text": "Украсть чип",
-            "effects": [
-              {
-                "type": "addStat",
-                "key": "R",
-                "value": 15
-              },
-              {
-                "type": "addStat",
-                "key": "H",
-                "value": -10
-              },
-              {
-                "type": "setFlag",
-                "key": "gosha_trust",
-                "value": false
-              }
-            ],
-            "nextNodeId": "CH02_SC02_D_STEAL_ATTEMPT"
           }
         ]
       },
@@ -515,7 +449,7 @@
         "nodeId": "CH02_SC03_D006_HEEDED",
         "speaker": "dan_kovalski",
         "text": "Вот и хорошо. Я один раз уже подвёл тебя мелочью — сдал кое-что по мелочи, когда прижали. Больше не хочу повторять эту ошибку, даже с другой стороны.",
-        "nextSceneId": "CH02_SC_SIDE01"
+        "nextSceneId": "CH03_SC01"
       },
       {
         "nodeId": "CH02_SC03_D005_WAVE",
@@ -533,67 +467,6 @@
         "nodeId": "CH02_SC03_D006_WAVE",
         "speaker": "dan_kovalski",
         "text": "Ладно, смейся. Просто помни, что я предупреждал, когда будет не до смеха. Я не всегда буду рядом, чтобы подхватить тебя, если оступишься.",
-        "nextSceneId": "CH02_SC_SIDE01"
-      }
-    ]
-  },
-  {
-    "sceneId": "CH02_SC_SIDE01",
-    "title": "Побочное событие 1. Лекарства соседу",
-    "background": "shadow_market_approach",
-    "music": "mus_market_theme",
-    "ambience": "amb_market_crowd",
-    "nodes": [
-      {
-        "nodeId": "CH02_SC_SIDE01_D001",
-        "speaker": "narrator",
-        "text": "На обратном пути, в переходе между этажами, Макс замечает пожилого соседа — тот с трудом тащит сумку с лекарствами, явно купленными втридорога на этом же рынке, потому что официальные аптеки давно не держат то, что ему нужно по доступной цене.",
-        "characterCues": [
-          {
-            "characterId": "max_orlov",
-            "kind": "Enter",
-            "position": "Left",
-            "scale": 1.0,
-            "durationMs": 700
-          },
-          {
-            "characterId": "npc_neighbor",
-            "kind": "Enter",
-            "position": "Right",
-            "scale": 1.0,
-            "durationMs": 700
-          }
-        ],
-        "choices": [
-          {
-            "choiceId": "CH02_SC_SIDE01_C001_A",
-            "text": "Помочь",
-            "effects": [
-              {
-                "type": "addStat",
-                "key": "H",
-                "value": 5
-              }
-            ],
-            "nextNodeId": "CH02_SC_SIDE01_D002_HELP"
-          },
-          {
-            "choiceId": "CH02_SC_SIDE01_C001_B",
-            "text": "Пройти мимо",
-            "nextNodeId": "CH02_SC_SIDE01_D002_PASS"
-          }
-        ]
-      },
-      {
-        "nodeId": "CH02_SC_SIDE01_D002_HELP",
-        "speaker": "narrator",
-        "text": "Макс забирает сумку и доносит до лифта соседа. По дороге старик рассказывает обрывок истории довоенных Низов — когда башню ещё называли просто «новым домом», а не тюрьмой с видом наверх, когда лифты ходили по расписанию, которое составляли люди, а не алгоритм, подрезанный чьей-то невидимой рукой.",
-        "nextSceneId": "CH03_SC01"
-      },
-      {
-        "nodeId": "CH02_SC_SIDE01_D002_PASS",
-        "speaker": "narrator",
-        "text": "Макс торопится, у него своя беда, своя срочность. Старик справляется сам, медленно, тяжело дыша на каждой ступеньке.",
         "nextSceneId": "CH03_SC01"
       }
     ]

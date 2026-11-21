@@ -1,0 +1,82 @@
+<UserControl x:Class="ZeroFloor.Views.Controls.IllustratedEpisodeOverlayControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ZeroFloor.Views.Controls"
+             Visibility="{Binding ActiveEpisode, Converter={StaticResource NullToVisibilityConverter}}"
+             Focusable="True" Background="#080D11">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="Paper" Color="#EAF5F3"/>
+        <SolidColorBrush x:Key="Mint" Color="#8CEBD1"/>
+        <SolidColorBrush x:Key="Frame" Color="#55737B"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Paper}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#25383D"/>
+            <Setter Property="Foreground" Value="{StaticResource Paper}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Frame}"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Viewbox Stretch="Uniform">
+        <Grid Width="1280" Height="720" ClipToBounds="True">
+            <local:IllustratedEpisodeStage x:Name="Stage" MouseLeftButtonDown="OnStageClick" Cursor="Cross"/>
+
+            <Border VerticalAlignment="Top" Background="#ED101B21" BorderBrush="{StaticResource Frame}"
+                    BorderThickness="0,0,0,1" Padding="30,13,24,15">
+                <DockPanel LastChildFill="True">
+                    <Button DockPanel.Dock="Right" Content="Пауза  ·  Esc" VerticalAlignment="Center" Click="OnPauseClick"/>
+                    <StackPanel>
+                        <TextBlock x:Name="LocationText" Foreground="{StaticResource Mint}" FontSize="12" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding ActiveEpisode.Title}" FontSize="30" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="24,104,0,0"
+                    Width="320" Background="#E9101B21" BorderBrush="{StaticResource Frame}"
+                    BorderThickness="1" CornerRadius="3" Padding="16,12" IsHitTestVisible="False">
+                <TextBlock x:Name="InstructionText" FontSize="16" TextWrapping="Wrap"/>
+            </Border>
+
+            <Border VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,104,24,0"
+                    Width="225" Background="#E9101B21" BorderBrush="{StaticResource Frame}"
+                    BorderThickness="1" CornerRadius="3" Padding="14,10" IsHitTestVisible="False">
+                <StackPanel>
+                    <TextBlock x:Name="StatusText" FontWeight="SemiBold" FontSize="13" Foreground="{StaticResource Mint}"/>
+                    <ProgressBar x:Name="RiskBar" Minimum="0" Maximum="1" Height="5" Margin="0,8,0,0"
+                                 Background="#33464C" Foreground="{StaticResource Mint}"/>
+                    <TextBlock x:Name="ScanWarning" Text="Макс замечен" Foreground="#FFC479" Margin="0,5,0,0"
+                               FontSize="13" Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="Hints" VerticalAlignment="Bottom" Background="#ED101B21"
+                    BorderBrush="{StaticResource Frame}" BorderThickness="0,1,0,0" Padding="24,13"
+                    IsHitTestVisible="False">
+                <TextBlock x:Name="HintText" FontSize="14"/>
+            </Border>
+
+            <Grid x:Name="PausePanel" Visibility="Collapsed" Background="#CA080D11">
+                <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="380"
+                        Background="#101B21" BorderBrush="{StaticResource Frame}" BorderThickness="1"
+                        CornerRadius="4" Padding="26">
+                    <StackPanel DataContext="{Binding ActiveEpisode}">
+                        <TextBlock Text="Пауза" FontSize="28" Margin="0,0,0,16"/>
+                        <Button Content="Продолжить" Click="OnPauseClick" Margin="0,0,0,10"/>
+                        <CheckBox Content="Подсказки управления" Foreground="{StaticResource Paper}"
+                                  IsChecked="{Binding ShowControlHints, Mode=TwoWay}" Margin="0,5,0,14"/>
+                        <TextBlock Text="Громкость эффектов" FontSize="14"/>
+                        <Slider Minimum="0" Maximum="1" Value="{Binding SfxVolume, Mode=TwoWay}" Margin="0,5,0,16"/>
+                        <Button Content="Выйти в главное меню" Command="{Binding ExitToMenuCommand}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <Border x:Name="Fade" Background="Black" Opacity="0" IsHitTestVisible="False"/>
+        </Grid>
+    </Viewbox>
+</UserControl>

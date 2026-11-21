@@ -62,8 +62,8 @@ public class RealScenarioContentTests
         string[] expectedSceneIds =
         {
             "CH01_SC01", "CH01_SC02", "CH01_SC03",
-            "CH02_SC01", "CH02_SC02", "CH02_SC03", "CH02_SC_SIDE01",
-            "CH03_SC01", "CH03_SC02", "CH03_SC03", "CH03_SC04", "CH03_BREACH_JOURNALIST",
+            "CH02_SC01", "CH02_SC02", "CH02_SC03",
+            "CH03_SC01", "CH03_SC02", "CH03_SC03", "CH03_SC04",
             "CH04_SC01",
             "CH05_SC01", "CH05_SC02", "CH05_SC03", "CH05_SC05", "CH05_SC_SIDE02",
             "CH06_SHAFTS_CHASE", "CH06_SHAFTS_CHASE_02",
@@ -94,43 +94,36 @@ public class RealScenarioContentTests
     private static void PlayChapters1Through5(
         GameSessionController controller,
         string ch1Choice,
-        string ch2PayOrSteal,
         string ch2DanChoice,
-        string ch2SideChoice,
         string ch3ShardChoice,
         string ch4JoinChoice,
-        string ch5DenyOrPartial)
+        string ch5DenyOrPartial,
+        bool haggleTwice = false)
     {
         controller.Start("CH01_SC01");
-        AdvanceToChoice(controller);
-        controller.SelectChoice("CH01_SC01_C001_A"); // тон реплики — косметический, без эффектов
         SelectAndAdvance(controller, ch1Choice);
 
         // Сообщение от тётки Клавдии (Глава 2) — автоматический гейт по H, не реальный выбор игрока.
         var klavdiaGate = ch1Choice == "CH01_SC03_C001_A" ? "CH02_SC01_C_KLAVDIA_B" : "CH02_SC01_C_KLAVDIA_A";
         SelectAndAdvance(controller, klavdiaGate);
         SelectAndAdvance(controller, "CH02_SC01_C001_A"); // обойти дрона — флейвор, без эффектов
-        SelectAndAdvance(controller, "CH02_SC02_C001_A"); // согласиться на цену сразу (без торга)
-        controller.SelectChoice(ch2PayOrSteal);
+        if (haggleTwice)
+        {
+            SelectAndAdvance(controller, "CH02_SC02_C001_B");
+            SelectAndAdvance(controller, "CH02_SC02_C002_A");
+            SelectAndAdvance(controller, "CH02_SC02_C003T_PAY");
+        }
+        else
+        {
+            SelectAndAdvance(controller, "CH02_SC02_C001_A");
+            SelectAndAdvance(controller, "CH02_SC02_C003D_PAY");
+        }
         SelectAndAdvance(controller, ch2DanChoice);
-        SelectAndAdvance(controller, ch2SideChoice);
 
         // Узел CH03_SC02 (взлом панели) больше не задаёт текстовый выбор "быстро/аккуратно" —
         // это теперь мини-игра "Взлом лифтового узла" (презентационный слой, движок её не
         // видит), AdvanceToChoice проходит сквозь неё как через обычную реплику.
         SelectAndAdvance(controller, ch3ShardChoice);
-
-        // Побочное событие 5 (журналист) — доступно только если shard_obtained=true; гейт
-        // всегда требует явного продолжения (тот же идиом, что leak/cellmate-гейты Главы 9).
-        if (ch3ShardChoice == "CH03_SC04_C001_A")
-        {
-            SelectAndAdvance(controller, "C_JOURNALIST_AVAILABLE_GATE");
-            SelectAndAdvance(controller, "C_JOURNALIST_DECLINE"); // не влияет на K/L/R/H
-        }
-        else
-        {
-            SelectAndAdvance(controller, "C_JOURNALIST_UNAVAILABLE_GATE");
-        }
 
         SelectAndAdvance(controller, "CH04_SC01_C001_A"); // «Кто ты вообще такой?»
         SelectAndAdvance(controller, "CH04_SC01_C002_A"); // «И что ты написал?»
@@ -159,9 +152,7 @@ public class RealScenarioContentTests
         PlayChapters1Through5(
             controller,
             ch1Choice: "CH01_SC03_C001_A", // взломать сейчас, +5H -> 65
-            ch2PayOrSteal: "CH02_SC02_C003D_PAY", // +5H -> 70, gosha_trust=true
             ch2DanChoice: "CH02_SC03_C001_A", // буду осторожнее
-            ch2SideChoice: "CH02_SC_SIDE01_C001_B", // пройти мимо соседа
             ch3ShardChoice: "CH03_SC04_C001_A", // извлечь шард
             ch4JoinChoice: "CH04_SC01_C005_A", // открыто согласиться, +15K/-5L -> K65 L45
             ch5DenyOrPartial: "CH05_SC03_C004_DENY_0"); // -5L -> L40
@@ -227,27 +218,26 @@ public class RealScenarioContentTests
         PlayChapters1Through5(
             controller,
             ch1Choice: "CH01_SC03_C001_B", // подождать очереди, -5H -> 55
-            ch2PayOrSteal: "CH02_SC02_C003D_STEAL", // +15R/-10H -> R65 H45, gosha_trust=false
             ch2DanChoice: "CH02_SC03_C001_B", // отмахнуться шуткой, dan_warned_heeded=false
-            ch2SideChoice: "CH02_SC_SIDE01_C001_B",
             ch3ShardChoice: "CH03_SC04_C001_B", // уйти чисто, shard_obtained=false
             ch4JoinChoice: "CH04_SC01_C005_B", // держать дистанцию, +5K -> K55
-            ch5DenyOrPartial: "CH05_SC03_C004_PARTIAL_0"); // +20L/-5H -> L70 H40
+            ch5DenyOrPartial: "CH05_SC03_C004_PARTIAL_0", // +20L/-5H -> L70 H55
+            haggleTwice: true); // Гоша теряет доверие после двух попыток сбить цену
 
         Assert.Equal(55, controller.State.GetStat(StatId.K));
         Assert.Equal(70, controller.State.GetStat(StatId.L));
-        Assert.Equal(40, controller.State.GetStat(StatId.H));
+        Assert.Equal(55, controller.State.GetStat(StatId.H));
         Assert.False(controller.State.GetFlag("shard_obtained")!.Value.BooleanValue);
         Assert.False(controller.State.GetFlag("gosha_trust")!.Value.BooleanValue);
 
-        SelectAndAdvance(controller, "C06_ROUTE_RESIDENTIAL"); // -10H -> H30
+        SelectAndAdvance(controller, "C06_ROUTE_RESIDENTIAL"); // -10H -> H45
         SelectAndAdvance(controller, "C06_RESULT_NORMAL_GATE"); // служебный гейт исхода 3D-погони (mg_ch6_chase_result не задан → обычный исход)
         AdvanceToChoice(controller);
 
         SelectAndAdvance(controller, "C07_TREE_A");
         SelectAndAdvance(controller, "C07_IGNORE_SHAKING_HANDS");
         SelectAndAdvance(controller, "C07_IGNORE_MEDALLION");
-        SelectAndAdvance(controller, "C07_DEMAND_TRUTH_NOW"); // -5H -> H25
+        SelectAndAdvance(controller, "C07_DEMAND_TRUTH_NOW"); // -5H -> H40
 
         SelectAndAdvance(controller, "C08_GUESS_RANDOMLY");
         SelectAndAdvance(controller, "C08_KEEP_SECRET");
@@ -277,7 +267,7 @@ public class RealScenarioContentTests
         Assert.Equal("dead", controller.State.GetFlag("dan_status")!.Value.StringValue);
         Assert.Equal(65, controller.State.GetStat(StatId.K));
         Assert.Equal(60, controller.State.GetStat(StatId.L));
-        Assert.Equal(25, controller.State.GetStat(StatId.H));
+        Assert.Equal(40, controller.State.GetStat(StatId.H));
 
         var branches = controller.GetAvailableEndingBranches();
         Assert.Contains("A", branches);
@@ -298,9 +288,7 @@ public class RealScenarioContentTests
         PlayChapters1Through5(
             controller,
             ch1Choice: "CH01_SC03_C001_A",
-            ch2PayOrSteal: "CH02_SC02_C003D_PAY",
             ch2DanChoice: "CH02_SC03_C001_A",
-            ch2SideChoice: "CH02_SC_SIDE01_C001_B",
             ch3ShardChoice: "CH03_SC04_C001_A",
             ch4JoinChoice: "CH04_SC01_C005_B",
             ch5DenyOrPartial: "CH05_SC03_C004_DENY_0");
@@ -346,9 +334,7 @@ public class RealScenarioContentTests
         PlayChapters1Through5(
             controller,
             ch1Choice: "CH01_SC03_C001_A", // +5H -> 65
-            ch2PayOrSteal: "CH02_SC02_C003D_PAY", // +5H -> 70, gosha_trust=true
             ch2DanChoice: "CH02_SC03_C001_A",
-            ch2SideChoice: "CH02_SC_SIDE01_C001_A", // помочь соседу, +5H -> 75
             ch3ShardChoice: "CH03_SC04_C001_B", // уйти чисто
             ch4JoinChoice: "CH04_SC01_C005_B", // держать дистанцию, +5K
             ch5DenyOrPartial: "CH05_SC03_C004_DENY_0");
@@ -614,6 +600,30 @@ public class RealScenarioContentTests
         // false по умолчанию (см. ConditionEvaluator.EvaluateFlagEquals), улика не тронута.
         Assert.True(controller.State.GetFlag("shard_obtained") is not { BooleanValue: true });
         Assert.Equal("CH10_SHADOW_COUNCIL", controller.State.CurrentSceneId);
+    }
+
+    [Theory]
+    [InlineData("CH09_DEBTOR_RESOLUTION_DEAD_02")]
+    [InlineData("CH09_DEBTOR_RESOLUTION_ALIVE_06")]
+    public void Chapter9_BothDanOutcomes_LeadThroughSummonsAndReceptionToWessel(string lastNode)
+    {
+        var controller = CreateController();
+        controller.Resume("CH09_DEBTOR", lastNode);
+
+        foreach (var expectedNode in new[]
+        {
+            "CH09_DEBTOR_SUMMONS_LOOKUP",
+            "CH09_DEBTOR_SUMMONS_CALL",
+            "CH09_DEBTOR_SUMMONS_WESSEL",
+            "CH09_DEBTOR_SUMMONS_BOARD",
+            "CH10_ADMIN_ARRIVAL_D001",
+            "CH10_ADMIN_ARRIVAL_D002",
+            "CH10_SHADOW_COUNCIL_D001"
+        })
+        {
+            controller.Advance();
+            Assert.Equal(expectedNode, controller.CurrentNode.NodeId);
+        }
     }
 
     [Fact]

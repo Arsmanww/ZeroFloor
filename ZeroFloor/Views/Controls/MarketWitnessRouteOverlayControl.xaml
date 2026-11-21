@@ -1,0 +1,183 @@
+<UserControl x:Class="ZeroFloor.Views.Controls.MarketWitnessRouteOverlayControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Visibility="{Binding ActiveMarketWitnessRoute, Converter={StaticResource NullToVisibilityConverter}}"
+             Focusable="True" IsVisibleChanged="OnVisibilityChanged" KeyboardNavigation.TabNavigation="Cycle">
+    <UserControl.Resources>
+        <Style x:Key="WitnessCard" TargetType="Border" BasedOn="{StaticResource MgInsetPanel}">
+            <Setter Property="Background" Value="#13232B"/>
+            <Setter Property="BorderBrush" Value="#42666C"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style x:Key="MapPoint" TargetType="Button">
+            <Setter Property="Foreground" Value="#F1E8D0"/>
+            <Setter Property="Background" Value="#E816222A"/>
+            <Setter Property="BorderBrush" Value="#9D8A67"/>
+            <Setter Property="FontFamily" Value="{StaticResource MgFont}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Face" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Face" Property="BorderBrush" Value="{StaticResource MgAccent}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Face" Property="BorderBrush" Value="{StaticResource MgAccent}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Face" Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="MapLabel" TargetType="Border">
+            <Setter Property="Background" Value="#DF101C23"/>
+            <Setter Property="BorderBrush" Value="#766A53"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#85080B10" DataContext="{Binding ActiveMarketWitnessRoute}">
+        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="22">
+            <Border Style="{StaticResource MgCard}" Width="1102" Padding="28,23,28,23">
+                <StackPanel>
+                    <TextBlock Text="ГЛАВА 9 · ДОЛЖНИК" Style="{StaticResource MgEyebrow}"/>
+                    <TextBlock Text="Куда увели Дэна" Style="{StaticResource MgTitle}"/>
+                    <Border Style="{StaticResource MgDivider}" Margin="0,13"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="264"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <Border Style="{StaticResource WitnessCard}">
+                                <StackPanel>
+                                    <TextBlock Text="Торговка" FontSize="19" Foreground="{StaticResource MgCyan}" Style="{StaticResource MgLabel}"/>
+                                    <TextBlock Text="«От рядов повели Дэна мимо трубы, дальше по проходу»." Foreground="#E4E9EB"
+                                               Style="{StaticResource MgBody}" Margin="0,8,0,10"/>
+                                    <Button Command="{Binding MarkTraderCommand}" Padding="12,8">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource MgGhostButton}">
+                                                <Setter Property="Content" Value="Нанести показание"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TraderMarked}" Value="True">
+                                                        <Setter Property="Content" Value="✓  Нанесено"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource WitnessCard}" BorderBrush="#776049">
+                                <StackPanel>
+                                    <TextBlock Text="Грузчик" FontSize="19" Foreground="{StaticResource MgAccent}" Style="{StaticResource MgLabel}"/>
+                                    <TextBlock Text="«У грузовых ворот конвой свернул в боковой проход»." Foreground="#E4E9EB"
+                                               Style="{StaticResource MgBody}" Margin="0,8,0,10"/>
+                                    <Button Command="{Binding MarkLoaderCommand}" Padding="12,8">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource MgGhostButton}">
+                                                <Setter Property="Content" Value="Нанести показание"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding LoaderMarked}" Value="True">
+                                                        <Setter Property="Content" Value="✓  Нанесено"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" BorderBrush="#75818B" BorderThickness="1" CornerRadius="2" ClipToBounds="True">
+                            <Canvas Width="760" Height="428">
+                                <Image Source="/ZeroFloor;component/Assets/Minigames/market_route_map.jpg" Stretch="Fill"
+                                       Width="760" Height="428" IsHitTestVisible="False"/>
+                                <Path Data="M130,198 H494"
+                                      Visibility="{Binding TraderMarked, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      Stroke="#70F2DB" StrokeThickness="5" StrokeDashArray="0.3 1.65" StrokeDashCap="Round" IsHitTestVisible="False"/>
+                                <Path Data="M494,390 V198"
+                                      Visibility="{Binding LoaderMarked, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      Stroke="#FFB964" StrokeThickness="5" StrokeDashArray="0.3 1.65" StrokeDashCap="Round" IsHitTestVisible="False"/>
+                                <Path Data="M494,198 H573"
+                                      Visibility="{Binding IsSolved, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      Stroke="{StaticResource MgGreen}" StrokeThickness="5" StrokeEndLineCap="Round" IsHitTestVisible="False"/>
+                                <Border Canvas.Left="74" Canvas.Top="151" Style="{StaticResource MapLabel}">
+                                    <TextBlock Text="Прилавки" Foreground="#F1E8D0" FontSize="14"/>
+                                </Border>
+                                <Border Canvas.Left="603" Canvas.Top="146" Style="{StaticResource MapLabel}">
+                                    <TextBlock Text="Склады Гоши" Foreground="#F1E8D0" FontSize="14"/>
+                                </Border>
+
+                                <Button Canvas.Left="341" Canvas.Top="142" Content="Труба" Command="{Binding SelectPointCommand}" CommandParameter="pipe">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource MapPoint}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedPoint}" Value="pipe">
+                                                    <Setter Property="Background" Value="#664625"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource MgAccent}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Canvas.Left="459" Canvas.Top="169" Content="Проход" Command="{Binding SelectPointCommand}" CommandParameter="passage">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource MapPoint}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedPoint}" Value="passage">
+                                                    <Setter Property="Background" Value="#664625"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource MgAccent}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsSolved}" Value="True">
+                                                    <Setter Property="Background" Value="#234A3E"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource MgGreen}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Canvas.Left="430" Canvas.Top="386" Content="Грузовые ворота" Command="{Binding SelectPointCommand}" CommandParameter="gate">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource MapPoint}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedPoint}" Value="gate">
+                                                    <Setter Property="Background" Value="#664625"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource MgAccent}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Canvas>
+                        </Border>
+                    </Grid>
+                    <Border Style="{StaticResource MgDivider}" Margin="0,14"/>
+                    <DockPanel LastChildFill="True">
+                        <Button DockPanel.Dock="Right" Content="{Binding ConfirmLabel}" Command="{Binding ConfirmCommand}"
+                                IsDefault="True" Style="{StaticResource MgPrimaryButton}"/>
+                        <TextBlock Text="{Binding Instruction}" TextWrapping="Wrap" Style="{StaticResource MgBody}"
+                                   Foreground="#D6E1E4" VerticalAlignment="Center" Margin="0,0,18,0" AutomationProperties.LiveSetting="Polite"/>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+        </Viewbox>
+    </Grid>
+</UserControl>

@@ -157,7 +157,35 @@ public sealed class SaveService : ISaveService
         if (data.SaveVersion != SaveVersion)
             throw new SaveVersionMismatchException(data.SaveVersion, SaveVersion);
 
-        return data;
+        // Старые слоты могли остаться внутри удалённых сцен или на переходах к ним.
+        var (sceneId, nodeId) = (data.SceneId, data.NodeId) switch
+        {
+            ("CH01_SC01", { } node) when node == "CH01_SC01_D002"
+                || node.StartsWith("CH01_SC01_D003B_", StringComparison.Ordinal)
+                => ("CH01_SC01", "CH01_SC01_D003"),
+            ("CH01_SC01", { } node) when node is "CH01_SC01_D005" or "CH01_SC01_D006" or "CH01_SC01_D009"
+                || node.StartsWith("CH01_SC01_D007_", StringComparison.Ordinal)
+                || node.StartsWith("CH01_SC01_D008_", StringComparison.Ordinal)
+                => ("CH01_SC01", "CH01_SC01_D010"),
+            ("CH01_SC02", "CH01_SC02_D002" or "CH01_SC02_D003") => ("CH01_SC02", "CH01_SC02_D001"),
+            ("CH01_SC02", "CH01_SC02_D005") => ("CH01_SC02", "CH01_SC02_D006"),
+            ("CH02_SC_SIDE01", _) => ("CH03_SC01", "CH03_SC01_D001"),
+            ("CH03_BREACH_JOURNALIST", _) or ("CH03_SC04", "CH03_SC04_D004_JOURNALIST_GATE")
+                => ("CH04_SC01", "CH04_SC01_D001"),
+            ({ } scene, { } node) when (scene is "CH12_FINALE_A_EPILOGUE" or "CH12_FINALE_B_EPILOGUE"
+                or "CH12_FINALE_C_EPILOGUE" or "CH12_FINALE_D_EPILOGUE")
+                && (node == scene + "_PRESS" || node == scene + "_PRESS_GATE")
+                => (scene, scene[..^"_EPILOGUE".Length] + "_TONE"),
+            _ => (null, null)
+        };
+
+        if (sceneId is null)
+            return data;
+
+        data.GameState.CurrentChapterId = sceneId;
+        data.GameState.CurrentSceneId = sceneId;
+        data.GameState.CurrentNodeId = nodeId;
+        return data with { ChapterId = sceneId, SceneId = sceneId, NodeId = nodeId, LocationSummary = null };
     }
 
     private void WriteFileAtomic(string path, SaveSlotData data)

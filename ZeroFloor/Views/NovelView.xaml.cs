@@ -61,7 +61,7 @@ public partial class NovelView : UserControl
 
     private bool _episodeWasActive;
 
-    /// <summary>Возврат из 3D-эпизода к сюжетной сцене: эпизод уходит в чёрное сам, а новелла
+    /// <summary>Возврат из интерактивного эпизода к сюжетной сцене: эпизод уходит в чёрное сам, а новелла
     /// плавно проявляется из чёрного — переход без резкой смены кадра.</summary>
     private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
@@ -406,11 +406,34 @@ public partial class NovelView : UserControl
         if (DataContext is not NovelViewModel viewModel)
             return;
 
-        // 3D-эпизод (Главы 2А/6) сам опрашивает клавиатуру каждый кадр (WASD/Shift/Space/C/E/Esc) —
-        // обычные клавиши новеллы (продолжить/выбор/пауза новеллы) в это время не должны срабатывать.
         if (viewModel.ActiveEpisode is not null)
         {
-            e.Handled = true;
+            e.Handled = IllustratedEpisodeOverlay.HandleKey(e);
+            return;
+        }
+
+        if (viewModel.ActiveArchiveRecordVerification is not null ||
+            viewModel.ActiveMarketWitnessRoute is not null || viewModel.ActiveMarketCardGame is not null)
+            return;
+
+        if (viewModel.ActiveBirthFloorComparison is { } comparison)
+        {
+            switch (e.Key)
+            {
+                case Key.Left:
+                    Invoke(comparison.SelectLowerFloorCommand);
+                    e.Handled = true;
+                    break;
+                case Key.Right:
+                    Invoke(comparison.SelectMiddleFloorCommand);
+                    e.Handled = true;
+                    break;
+                case Key.Enter or Key.Space when e.OriginalSource is not Button:
+                    if (!e.IsRepeat)
+                        Invoke(comparison.ContinueCommand);
+                    e.Handled = true;
+                    break;
+            }
             return;
         }
 

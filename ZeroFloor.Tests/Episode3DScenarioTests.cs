@@ -1,6 +1,7 @@
 using ZeroFloor.Engine;
 using ZeroFloor.Models;
 using ZeroFloor.Services;
+using ZeroFloor.ViewModels;
 
 namespace ZeroFloor.Tests;
 
@@ -192,7 +193,7 @@ public sealed class Episode3DScenarioTests
     }
 
     [Fact]
-    public void Chapter8_Dossier_MapsToExistingChoices_AndFatherFileHasHardMode()
+    public void Chapter8_Dossier_MapsToExistingChoices()
     {
         var c = At("CH08_WATCHERS_ARCHIVE_02", "CH08_WATCHERS_ARCHIVE_02_D001");
         var dossier = c.CurrentNode.MinigameCue!.DossierAssembly!;
@@ -200,8 +201,60 @@ public sealed class Episode3DScenarioTests
         Assert.Equal("C08_GUESS_RANDOMLY", dossier.FailureChoiceId);
         Assert.Equal(8, dossier.Fragments.Count);
 
-        var file = At("CH08_WATCHERS_ARCHIVE_03", "CH08_WATCHERS_ARCHIVE_03_D001B_ASSEMBLE").CurrentNode.MinigameCue!.CodeAssembly!;
-        Assert.Equal("mg_ch8_archive_alert", file.HardModeFlag);
-        Assert.True(file.HardTimeLimitSeconds < file.TimeLimitSeconds);
+    }
+
+    [Fact]
+    public void Chapter8_VerifiedArchiveRecord_UnlocksSuccessorAndBalanceWhenEligible()
+    {
+        var c = At("CH08_WATCHERS_ARCHIVE_03", "CH08_WATCHERS_ARCHIVE_03_D001B_ASSEMBLE");
+        c.State.SetStat(StatId.H, 65);
+        Assert.Equal(MinigameKind.ArchiveRecordVerification, c.CurrentNode.MinigameCue!.Kind);
+        var game = new ArchiveRecordVerificationViewModel(false, c.Advance, () => Assert.Fail("Unexpected failure"));
+        Assert.False(game.ConfirmCommand.CanExecute(null));
+        Assert.Equal(3, game.AttemptsRemaining);
+
+        game.SelectedIndex = 0;
+        game.ConfirmCommand.Execute(null);
+        Assert.Equal(2, game.AttemptsRemaining);
+        Assert.Equal("Сверка 1 из 3", game.Stage);
+        Assert.NotEmpty(game.Feedback);
+
+        foreach (var answer in new[] { 1, 0, 2 })
+        {
+            game.SelectedIndex = answer;
+            game.ConfirmCommand.Execute(null);
+        }
+
+        Assert.True(game.IsVerified);
+        Assert.Null(c.State.GetFlag("father_file_found"));
+        game.ConfirmCommand.Execute(null);
+        game.ConfirmCommand.Execute(null);
+        Assert.Equal("CH08_WATCHERS_ARCHIVE_03_D002_OPEN", c.CurrentNode.NodeId);
+        Assert.True(c.State.GetFlag("father_file_found")?.BooleanValue == true);
+        Assert.Equal(70, c.State.GetStat(StatId.H));
+        Assert.Contains("C", c.GetAvailableEndingBranches());
+        Assert.Contains("D", c.GetAvailableEndingBranches());
+    }
+
+    [Fact]
+    public void Chapter8_ArchiveAlert_AllowsTwoMistakesBeforeLosingTheRecord()
+    {
+        var c = At("CH08_WATCHERS_ARCHIVE_03", "CH08_WATCHERS_ARCHIVE_03_D001B_ASSEMBLE");
+        var failure = c.CurrentNode.MinigameCue!.FailureNodeId!;
+        var game = new ArchiveRecordVerificationViewModel(true, () => Assert.Fail("Unexpected success"),
+            () => c.JumpToNode(failure));
+        Assert.Equal(2, game.AttemptsRemaining);
+
+        foreach (var wrongAnswer in new[] { 0, 2 })
+        {
+            game.SelectedIndex = wrongAnswer;
+            game.ConfirmCommand.Execute(null);
+        }
+
+        Assert.Equal(failure, c.CurrentNode.NodeId);
+        c.Advance();
+        Assert.False(c.State.GetFlag("father_file_found")?.BooleanValue);
+        Assert.DoesNotContain("C", c.GetAvailableEndingBranches());
+        Assert.DoesNotContain("D", c.GetAvailableEndingBranches());
     }
 }

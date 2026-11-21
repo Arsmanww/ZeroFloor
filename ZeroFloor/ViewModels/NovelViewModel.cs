@@ -68,6 +68,10 @@ public sealed class NovelViewModel : ViewModelBase
     private LogScanViewModel? _activeLogScan;
     private Episode3DViewModel? _activeEpisode;
     private DossierAssemblyViewModel? _activeDossierAssembly;
+    private BirthFloorComparisonViewModel? _activeBirthFloorComparison;
+    private ArchiveRecordVerificationViewModel? _activeArchiveRecordVerification;
+    private MarketWitnessRouteViewModel? _activeMarketWitnessRoute;
+    private MarketCardGameViewModel? _activeMarketCardGame;
 
     // Индикатор подозрения (Глава 5, SuspicionMeterCue) — persistent HUD, не мини-игра: не
     // блокирует диалог/выбор, просто показывает текущее значение флага поверх экрана, пока не
@@ -379,13 +383,66 @@ public sealed class NovelViewModel : ViewModelBase
         }
     }
 
+    public BirthFloorComparisonViewModel? ActiveBirthFloorComparison
+    {
+        get => _activeBirthFloorComparison;
+        private set
+        {
+            if (!SetProperty(ref _activeBirthFloorComparison, value))
+                return;
+
+            OnPropertyChanged(nameof(IsAnyMinigameActive));
+            RestartAutoAdvanceTimerIfNeeded();
+        }
+    }
+
+    public ArchiveRecordVerificationViewModel? ActiveArchiveRecordVerification
+    {
+        get => _activeArchiveRecordVerification;
+        private set
+        {
+            if (!SetProperty(ref _activeArchiveRecordVerification, value))
+                return;
+
+            OnPropertyChanged(nameof(IsAnyMinigameActive));
+            RestartAutoAdvanceTimerIfNeeded();
+        }
+    }
+
+    public MarketWitnessRouteViewModel? ActiveMarketWitnessRoute
+    {
+        get => _activeMarketWitnessRoute;
+        private set
+        {
+            if (!SetProperty(ref _activeMarketWitnessRoute, value))
+                return;
+
+            OnPropertyChanged(nameof(IsAnyMinigameActive));
+            RestartAutoAdvanceTimerIfNeeded();
+        }
+    }
+
+    public MarketCardGameViewModel? ActiveMarketCardGame
+    {
+        get => _activeMarketCardGame;
+        private set
+        {
+            if (!SetProperty(ref _activeMarketCardGame, value))
+                return;
+
+            OnPropertyChanged(nameof(IsAnyMinigameActive));
+            RestartAutoAdvanceTimerIfNeeded();
+        }
+    }
+
     /// <summary>Общий флаг "идёт какая-то мини-игра" для команд/авточтения ниже — не важно,
     /// какая именно, узел задаёт не больше одной мини-игры за раз (см. RefreshFromCurrentNode).</summary>
     public bool IsAnyMinigameActive =>
         ActiveMinigame is not null || ActiveTimingBarMinigame is not null ||
         ActiveStealthGrid is not null || ActiveCodeAssembly is not null ||
         ActiveCableDiagnostics is not null || ActiveRingLock is not null || ActiveLogScan is not null ||
-        ActiveEpisode is not null || ActiveDossierAssembly is not null;
+        ActiveEpisode is not null || ActiveDossierAssembly is not null || ActiveBirthFloorComparison is not null ||
+        ActiveArchiveRecordVerification is not null || ActiveMarketWitnessRoute is not null || ActiveMarketCardGame is not null;
 
     /// <summary>Виден ли сейчас HUD-индикатор подозрения (Глава 5) — см. SuspicionMeterCue.</summary>
     public bool IsSuspicionMeterVisible
@@ -708,6 +765,24 @@ public sealed class NovelViewModel : ViewModelBase
 
         ActiveDossierAssembly = minigameCue is { Kind: MinigameKind.DossierAssembly, DossierAssembly: not null }
             ? CreateDossierAssembly(minigameCue.DossierAssembly)
+            : null;
+
+        ActiveBirthFloorComparison = minigameCue?.Kind == MinigameKind.BirthFloorComparison
+            ? new BirthFloorComparisonViewModel(Advance)
+            : null;
+
+        ActiveArchiveRecordVerification = minigameCue?.Kind == MinigameKind.ArchiveRecordVerification
+            ? new ArchiveRecordVerificationViewModel(
+                _controller.State.GetFlag("mg_ch8_archive_alert")?.BooleanValue == true,
+                Advance, () => JumpToMinigameOutcomeNode(minigameCue.FailureNodeId!))
+            : null;
+
+        ActiveMarketWitnessRoute = minigameCue?.Kind == MinigameKind.MarketWitnessRoute
+            ? new MarketWitnessRouteViewModel(Advance)
+            : null;
+
+        ActiveMarketCardGame = minigameCue?.Kind == MinigameKind.MarketCardGame
+            ? new MarketCardGameViewModel(Advance, () => JumpToMinigameOutcomeNode(minigameCue.FailureNodeId!))
             : null;
 
         var scene = _controller.CurrentScene;

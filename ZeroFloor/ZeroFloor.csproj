@@ -23,6 +23,9 @@
 
     <!-- Фоны сцен — читаются AssetService по пути из Data/Backgrounds/backgrounds.json. -->
     <None Include="Assets\Backgrounds\**\*.png;Assets\Backgrounds\**\*.jpg;Assets\Backgrounds\**\*.jpeg;Assets\Backgrounds\**\*.webp" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Assets\Episodes\*.jpg;Assets\Episodes\*.png" CopyToOutputDirectory="PreserveNewest" />
+    <Resource Include="Assets\Minigames\atlas_section.png" />
+    <Resource Include="Assets\Minigames\market_route_map.jpg;Assets\Minigames\gosha_card_table.jpg" />
   </ItemGroup>
 
 </Project>

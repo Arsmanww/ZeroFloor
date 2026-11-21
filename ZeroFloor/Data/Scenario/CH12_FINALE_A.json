@@ -136,39 +136,6 @@
         "nodeId": "CH12_FINALE_A_EPILOGUE_D006",
         "speaker": "narrator",
         "text": "Карточка 6. Витринные карточки успеха ВЕРТИКАЛИ с лицом Макса расходятся по башне как пропаганда — «ещё один, кто доказал, что система работает, если постараться». Низы ничего не выигрывают — коэффициент стабилизации работает как прежде, возможно, усиливается после разгрома Корней, лишившихся лидера и документации.",
-        "nextNodeId": "CH12_FINALE_A_EPILOGUE_PRESS_GATE"
-      },
-      {
-        "nodeId": "CH12_FINALE_A_EPILOGUE_PRESS_GATE",
-        "speaker": "narrator",
-        "text": "Продолжить.",
-        "choices": [
-          {
-            "choiceId": "C12A_EPILOGUE_WITH_JOURNALIST",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": true
-            },
-            "nextNodeId": "CH12_FINALE_A_EPILOGUE_PRESS"
-          },
-          {
-            "choiceId": "C12A_EPILOGUE_WITHOUT_JOURNALIST",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": false
-            },
-            "nextNodeId": "CH12_FINALE_A_TONE"
-          }
-        ]
-      },
-      {
-        "nodeId": "CH12_FINALE_A_EPILOGUE_PRESS",
-        "speaker": "narrator",
-        "text": "Короткая заметка о странностях лифтовых панелей так и не была опубликована — редакцию тихо прикрыли через месяц после разгрома Корней, слишком удобное совпадение, чтобы быть случайностью.",
         "nextNodeId": "CH12_FINALE_A_TONE"
       },
       {

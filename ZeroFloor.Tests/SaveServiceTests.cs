@@ -71,6 +71,35 @@ public sealed class SaveServiceTests : IDisposable
         Assert.False(_saveService.HasAnySave);
     }
 
+    [Theory]
+    [InlineData("CH01_SC01", "CH01_SC01_D003B_CABLE_CHECK", "CH01_SC01", "CH01_SC01_D003")]
+    [InlineData("CH01_SC01", "CH01_SC01_D008_JOKE", "CH01_SC01", "CH01_SC01_D010")]
+    [InlineData("CH01_SC02", "CH01_SC02_D005", "CH01_SC02", "CH01_SC02_D006")]
+    [InlineData("CH02_SC_SIDE01", "CH02_SC_SIDE01_D002_HELP", "CH03_SC01", "CH03_SC01_D001")]
+    [InlineData("CH03_BREACH_JOURNALIST", "CH03_BREACH_JOURNALIST_D002", "CH04_SC01", "CH04_SC01_D001")]
+    [InlineData("CH03_SC04", "CH03_SC04_D004_JOURNALIST_GATE", "CH04_SC01", "CH04_SC01_D001")]
+    [InlineData("CH12_FINALE_A_EPILOGUE", "CH12_FINALE_A_EPILOGUE_PRESS_GATE", "CH12_FINALE_A_EPILOGUE", "CH12_FINALE_A_TONE")]
+    [InlineData("CH12_FINALE_D_EPILOGUE", "CH12_FINALE_D_EPILOGUE_PRESS", "CH12_FINALE_D_EPILOGUE", "CH12_FINALE_D_TONE")]
+    public void LoadManualSlot_AtRemovedStoryNode_ResumesWithExistingProgress(
+        string oldScene, string oldNode, string nextScene, string nextNode)
+    {
+        var state = new GameState { CurrentChapterId = oldScene, CurrentSceneId = oldScene, CurrentNodeId = oldNode };
+        state.SetStat(StatId.H, 65);
+        _saveService.SaveManualSlot(1, new SaveSlotData
+        {
+            SaveVersion = SaveService.SaveVersion, Timestamp = DateTime.Now, PlayTimeSeconds = 12,
+            ChapterId = oldScene, SceneId = oldScene, NodeId = oldNode, GameState = state
+        });
+
+        var loaded = _saveService.LoadManualSlot(1);
+        Assert.Equal(nextScene, loaded.SceneId);
+        Assert.Equal(nextNode, loaded.NodeId);
+        Assert.Equal(65, loaded.GameState.GetStat(StatId.H));
+        var controller = RealScenarioContentTests.CreateController(loaded.GameState);
+        controller.Resume(loaded.SceneId!, loaded.NodeId!);
+        Assert.Equal(nextNode, controller.CurrentNode.NodeId);
+    }
+
     [Fact]
     public void SaveAndLoad_AtVeryStart_RoundTripsPositionAndDefaultStats()
     {

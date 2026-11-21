@@ -106,39 +106,6 @@
         "nodeId": "CH12_FINALE_C_EPILOGUE_D006",
         "speaker": "narrator",
         "text": "Карточка 6. Цифры в Низах постепенно, тайно смягчаются — лучше, но медленно и без прозрачности, незаметно для тех, кого это касается больше всего. Имя Макса Орлова официально исчезает из записей башни, стирается тем же способом, каким стёрли имя его отца девять лет назад. Он сам стал невидимым — не потому что его забыли, а потому что так требует работа, которую он теперь делает.",
-        "nextNodeId": "CH12_FINALE_C_EPILOGUE_PRESS_GATE"
-      },
-      {
-        "nodeId": "CH12_FINALE_C_EPILOGUE_PRESS_GATE",
-        "speaker": "narrator",
-        "text": "Продолжить.",
-        "choices": [
-          {
-            "choiceId": "C12C_EPILOGUE_WITH_JOURNALIST",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": true
-            },
-            "nextNodeId": "CH12_FINALE_C_EPILOGUE_PRESS"
-          },
-          {
-            "choiceId": "C12C_EPILOGUE_WITHOUT_JOURNALIST",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": false
-            },
-            "nextNodeId": "CH12_FINALE_C_TONE"
-          }
-        ]
-      },
-      {
-        "nodeId": "CH12_FINALE_C_EPILOGUE_PRESS",
-        "speaker": "narrator",
-        "text": "Статья журналиста о диагностическом шарде осталась единственным публичным следом того, что когда-то было найдено — Макс, разумеется, никогда её не комментирует.",
         "nextNodeId": "CH12_FINALE_C_TONE"
       },
       {

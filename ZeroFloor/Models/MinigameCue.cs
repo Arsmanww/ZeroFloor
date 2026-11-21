@@ -23,7 +23,12 @@ public enum MinigameKind
     ArchiveStealth3D,
 
     /// <summary>Глава 8, сцена 8.2: «Сборка досье» Виктора и Сони, см. DossierAssemblyLayout.</summary>
-    DossierAssembly
+    DossierAssembly,
+
+    BirthFloorComparison,
+    ArchiveRecordVerification,
+    MarketWitnessRoute,
+    MarketCardGame
 }
 
 /// <summary>

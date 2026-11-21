@@ -151,39 +151,6 @@
         "nodeId": "CH12_FINALE_B_EPILOGUE_D007",
         "speaker": "narrator",
         "text": "Часть элиты бежит на закрытые площадки снаружи башни, в непригодную для жизни зону, о которой никто ничего толком не знает — намёк на то, что история Атласа ещё не закончена. Часть остаётся и, болезненно, учится жить без привилегий, которые считала естественным порядком вещей. Тяжёлый, но свободный переходный период начинается, без гарантий, без расписания, составленного заранее кем-то другим.",
-        "nextNodeId": "CH12_FINALE_B_EPILOGUE_PRESS_GATE"
-      },
-      {
-        "nodeId": "CH12_FINALE_B_EPILOGUE_PRESS_GATE",
-        "speaker": "narrator",
-        "text": "Продолжить.",
-        "choices": [
-          {
-            "choiceId": "C12B_PRESS_TRUE_GATE",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": true
-            },
-            "nextNodeId": "CH12_FINALE_B_EPILOGUE_PRESS"
-          },
-          {
-            "choiceId": "C12B_PRESS_FALSE_GATE",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": false
-            },
-            "nextNodeId": "CH12_FINALE_B_TONE"
-          }
-        ]
-      },
-      {
-        "nodeId": "CH12_FINALE_B_EPILOGUE_PRESS",
-        "speaker": "narrator",
-        "text": "Статья журналиста Средних этажей, вышедшая задолго до обрушения, теперь читается как раннее предупреждение, которое никто не услышал вовремя.",
         "nextNodeId": "CH12_FINALE_B_TONE"
       },
       {

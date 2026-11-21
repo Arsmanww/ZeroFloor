@@ -5,9 +5,8 @@ namespace ZeroFloor.Tests;
 
 /// <summary>
 /// Исчерпывающая проверка развилок Глав 1–5, перенесённых дословно из
-/// Zero_Floor_Full_Script.docx (редакция 2.2): все три варианта тона Главы 1, оба исхода
-/// Выбора 1, оба маршрута мимо дрона, полная таблица gosha_trust (0/1/2 попыток торга ×
-/// заплатить/украсть), оба способа работы с панелью в Главе 3, оба исхода Выбора 3, все три
+/// Zero_Floor_Full_Script.docx (редакция 2.2): оба исхода Выбора 1, оба маршрута мимо дрона,
+/// доверие Гоши при 0/1/2 попытках торга, оба способа работы с панелью в Главе 3, оба исхода Выбора 3, все три
 /// входа в разговор с Виктором (Глава 4), помощь/отказ сокамернику, и — главное — точная
 /// формула скрытого индикатора suspicion из ПРИЛОЖЕНИЯ 2.2 документа (старт 3, логичный −1,
 /// нелогичный +2, Выбор 5: отрицать +1 / сотрудничать −2, порог показа CH05_SC05 — suspicion ≥ 6).
@@ -15,19 +14,19 @@ namespace ZeroFloor.Tests;
 /// </summary>
 public class Chapters1To5ExhaustiveTests
 {
-    [Theory]
-    [InlineData("CH01_SC01_C001_A")]
-    [InlineData("CH01_SC01_C001_B")]
-    [InlineData("CH01_SC01_C001_C")]
-    public void Chapter1_AllThreeToneChoices_AreCosmeticAndLeadToTheSameDecision(string toneChoiceId)
+    [Fact]
+    public void Chapter1_NoMinigameBeforeTheFirstStoryChoice()
     {
         var controller = RealScenarioContentTests.CreateController();
         controller.Start("CH01_SC01");
-        RealScenarioContentTests.AdvanceToChoice(controller);
+        while (controller.CurrentNode.Choices.Count == 0)
+        {
+            Assert.Null(controller.CurrentNode.MinigameCue);
+            controller.Advance();
+        }
 
-        controller.SelectChoice(toneChoiceId);
-        RealScenarioContentTests.AdvanceToChoice(controller);
-
+        Assert.Equal("CH01_SC03_D002", controller.CurrentNode.NodeId);
+        Assert.Null(controller.CurrentNode.MinigameCue);
         var available = controller.GetAvailableChoices();
         Assert.Equal(2, available.Count);
         Assert.Contains(available, c => c.ChoiceId == "CH01_SC03_C001_A");
@@ -43,13 +42,11 @@ public class Chapters1To5ExhaustiveTests
     {
         var hackController = RealScenarioContentTests.CreateController();
         hackController.Start("CH01_SC01");
-        RealScenarioContentTests.SelectAndAdvance(hackController, "CH01_SC01_C001_A");
         RealScenarioContentTests.SelectAndAdvance(hackController, "CH01_SC03_C001_A");
         Assert.Equal(65, hackController.State.GetStat(StatId.H));
 
         var waitController = RealScenarioContentTests.CreateController();
         waitController.Start("CH01_SC01");
-        RealScenarioContentTests.SelectAndAdvance(waitController, "CH01_SC01_C001_B");
         RealScenarioContentTests.SelectAndAdvance(waitController, "CH01_SC03_C001_B");
         Assert.Equal(55, waitController.State.GetStat(StatId.H));
     }
@@ -88,18 +85,14 @@ public class Chapters1To5ExhaustiveTests
     }
 
     /// <summary>
-    /// Полная таблица из документа (Глава 2): gosha_trust = true, если заплачено честно И
-    /// сбито не более одного раза; false — при краже или при агрессивном торге (два и более раз).
+    /// Оплата доступна после любого торга. Гоша теряет доверие после второй попытки сбить цену.
     /// </summary>
     [Theory]
-    [InlineData(0, "PAY", true, 65, 50)]
-    [InlineData(1, "PAY", true, 65, 50)]
-    [InlineData(2, "PAY", false, 65, 50)]
-    [InlineData(0, "STEAL", false, 50, 65)]
-    [InlineData(1, "STEAL", false, 50, 65)]
-    [InlineData(2, "STEAL", false, 50, 65)]
-    public void Chapter2_GoshaTrust_FollowsHaggleCountAndPaymentMethod(
-        int haggleAttempts, string finalAction, bool expectedGoshaTrust, int expectedH, int expectedR)
+    [InlineData(0, "CH02_SC02_C003D_PAY", true)]
+    [InlineData(1, "CH02_SC02_C003O_PAY", true)]
+    [InlineData(2, "CH02_SC02_C003T_PAY", false)]
+    public void Chapter2_OnlyPurchaseIsAvailableAfterHaggling(
+        int haggleAttempts, string purchaseChoiceId, bool expectedGoshaTrust)
     {
         var controller = RealScenarioContentTests.CreateController();
         controller.Start("CH02_SC02");
@@ -116,18 +109,13 @@ public class Chapters1To5ExhaustiveTests
             controller.SelectChoice(haggleAttempts == 1 ? "CH02_SC02_C002_B" : "CH02_SC02_C002_A");
         }
 
-        var finalChoiceId = finalAction == "PAY" ? "CH02_SC02_C003D_PAY" : "CH02_SC02_C003D_STEAL";
-        if (haggleAttempts == 1)
-            finalChoiceId = finalAction == "PAY" ? "CH02_SC02_C003O_PAY" : "CH02_SC02_C003O_STEAL";
-        else if (haggleAttempts == 2)
-            finalChoiceId = finalAction == "PAY" ? "CH02_SC02_C003T_PAY" : "CH02_SC02_C003T_STEAL";
-
         RealScenarioContentTests.AdvanceToChoice(controller);
-        controller.SelectChoice(finalChoiceId);
+        Assert.Equal(purchaseChoiceId, Assert.Single(controller.GetAvailableChoices()).ChoiceId);
+        controller.SelectChoice(purchaseChoiceId);
 
         Assert.Equal(expectedGoshaTrust, controller.State.GetFlag("gosha_trust")!.Value.BooleanValue);
-        Assert.Equal(expectedH, controller.State.GetStat(StatId.H));
-        Assert.Equal(expectedR, controller.State.GetStat(StatId.R));
+        Assert.Equal(65, controller.State.GetStat(StatId.H));
+        Assert.Equal(50, controller.State.GetStat(StatId.R));
 
         RealScenarioContentTests.AdvanceToChoice(controller);
         Assert.Equal("CH02_SC03", controller.State.CurrentSceneId);
@@ -144,24 +132,6 @@ public class Chapters1To5ExhaustiveTests
         controller.SelectChoice(heeded ? "CH02_SC03_C001_A" : "CH02_SC03_C001_B");
 
         Assert.Equal(heeded, controller.State.GetFlag("dan_warned_heeded")!.Value.BooleanValue);
-    }
-
-    [Fact]
-    public void Chapter2_NeighborSideEvent_HelpAddsFiveHumanity_PassByDoesNotChangeAnything()
-    {
-        var helpController = RealScenarioContentTests.CreateController();
-        helpController.Start("CH02_SC_SIDE01");
-        helpController.SelectChoice("CH02_SC_SIDE01_C001_A");
-        Assert.Equal(65, helpController.State.GetStat(StatId.H));
-        helpController.Advance();
-        Assert.Equal("CH03_SC01", helpController.State.CurrentSceneId);
-
-        var passController = RealScenarioContentTests.CreateController();
-        passController.Start("CH02_SC_SIDE01");
-        passController.SelectChoice("CH02_SC_SIDE01_C001_B");
-        Assert.Equal(60, passController.State.GetStat(StatId.H));
-        passController.Advance();
-        Assert.Equal("CH03_SC01", passController.State.CurrentSceneId);
     }
 
     [Fact]
@@ -195,20 +165,6 @@ public class Chapters1To5ExhaustiveTests
         controller.SelectChoice(choiceId);
 
         Assert.Equal(expectedShardObtained, controller.State.GetFlag("shard_obtained")!.Value.BooleanValue);
-
-        // Побочное событие 5 (журналист) — гейт по shard_obtained; всегда требует явного
-        // продолжения, независимо от того, доступна ли встреча в этом прохождении.
-        RealScenarioContentTests.AdvanceToChoice(controller);
-        if (expectedShardObtained)
-        {
-            controller.SelectChoice("C_JOURNALIST_AVAILABLE_GATE");
-            RealScenarioContentTests.AdvanceToChoice(controller);
-            controller.SelectChoice("C_JOURNALIST_DECLINE");
-        }
-        else
-        {
-            controller.SelectChoice("C_JOURNALIST_UNAVAILABLE_GATE");
-        }
 
         RealScenarioContentTests.AdvanceToChoice(controller);
         Assert.Equal("CH04_SC01", controller.State.CurrentSceneId);

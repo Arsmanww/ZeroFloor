@@ -69,9 +69,13 @@
         <controls:CableDiagnosticsOverlayControl/>
         <controls:RingLockOverlayControl/>
         <controls:LogScanOverlayControl/>
-        <!-- Интерактивные 3D-эпизоды (Глава 2А «Ярмарка теней», Глава 6 «Шахты») — на весь экран. -->
-        <controls:Episode3DOverlayControl/>
+        <!-- Интерактивные эпизоды с фиксированной камерой. -->
+        <controls:IllustratedEpisodeOverlayControl x:Name="IllustratedEpisodeOverlay"/>
         <controls:DossierAssemblyOverlayControl/>
+        <controls:BirthFloorComparisonOverlayControl/>
+        <controls:ArchiveRecordVerificationOverlayControl/>
+        <controls:MarketWitnessRouteOverlayControl/>
+        <controls:MarketCardGameOverlayControl/>
 
         <!-- Полноэкранное затемнение/осветление (requirement 7) — поверх всего, включая HUD. -->
         <Border x:Name="ScreenFadeOverlay" Background="Black" Opacity="1" IsHitTestVisible="False"/>

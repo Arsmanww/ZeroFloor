@@ -148,7 +148,8 @@ public sealed class ScenarioValidator
             return;
 
         if (cue.Kind is MinigameKind.TimingBar or MinigameKind.CodeAssembly or MinigameKind.CableDiagnostics
-            or MinigameKind.RingLock or MinigameKind.LogScan)
+            or MinigameKind.RingLock or MinigameKind.LogScan or MinigameKind.ArchiveRecordVerification
+            or MinigameKind.MarketCardGame)
         {
             if (string.IsNullOrWhiteSpace(cue.FailureNodeId))
                 throw new ScenarioValidationException(
@@ -192,6 +193,18 @@ public sealed class ScenarioValidator
 
         if (cue.Kind == MinigameKind.DossierAssembly)
             ValidateDossierAssembly(scene, node, cue.DossierAssembly);
+
+        if (cue.Kind == MinigameKind.BirthFloorComparison && node.Choices.Count > 0)
+            throw new ScenarioValidationException(
+                Where(scene, node, null) + ": сравнение этажей должно продолжаться без сюжетного выбора на том же узле.");
+
+        if (cue.Kind == MinigameKind.ArchiveRecordVerification && node.Choices.Count > 0)
+            throw new ScenarioValidationException(
+                Where(scene, node, null) + ": проверка архивной записи должна продолжаться без сюжетного выбора на том же узле.");
+
+        if ((cue.Kind is MinigameKind.MarketWitnessRoute or MinigameKind.MarketCardGame) && node.Choices.Count > 0)
+            throw new ScenarioValidationException(
+                Where(scene, node, null) + ": мини-игра Ярмарки должна продолжаться без сюжетного выбора на том же узле.");
     }
 
     private void ValidateDossierAssembly(SceneDefinition scene, DialogueNode node, DossierAssemblyLayout? layout)

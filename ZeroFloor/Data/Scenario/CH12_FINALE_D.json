@@ -133,39 +133,6 @@
         "nodeId": "CH12_FINALE_D_EPILOGUE_D007",
         "speaker": "narrator",
         "text": "Аня технически отвязана от роли ключа навсегда через безопасную процедуру переноса калибровки на синтетический профиль, полностью свободна физически и эмоционально — впервые без оговорок. Совет Смотрителей не уничтожен, но впервые публично назван и ограничен новым наблюдательным комитетом с представителями всех трёх зон Атласа. Низы получают постепенный, но настоящий и прозрачный рост мобильности между этажами — не утопия, не внезапное равенство, а измеримый, подотчётный прогресс, который можно проверить, а не просто обещают.",
-        "nextNodeId": "CH12_FINALE_D_EPILOGUE_PRESS_GATE"
-      },
-      {
-        "nodeId": "CH12_FINALE_D_EPILOGUE_PRESS_GATE",
-        "speaker": "narrator",
-        "text": "Продолжить.",
-        "choices": [
-          {
-            "choiceId": "C12D_EPILOGUE_WITH_JOURNALIST",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": true
-            },
-            "nextNodeId": "CH12_FINALE_D_EPILOGUE_PRESS"
-          },
-          {
-            "choiceId": "C12D_EPILOGUE_WITHOUT_JOURNALIST",
-            "text": "Продолжить",
-            "condition": {
-              "type": "flagEquals",
-              "flagKey": "journalist_shown",
-              "value": false
-            },
-            "nextNodeId": "CH12_FINALE_D_TONE"
-          }
-        ]
-      },
-      {
-        "nodeId": "CH12_FINALE_D_EPILOGUE_PRESS",
-        "speaker": "narrator",
-        "text": "Статья журналиста Средних этажей, вышедшая месяцы назад, теперь цитируется как одно из первых открытых свидетельств манипуляций.",
         "nextNodeId": "CH12_FINALE_D_TONE"
       },
       {
