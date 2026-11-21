@@ -175,81 +175,58 @@
         </Setter>
     </Style>
 
-    <!-- Пункт главного меню по референсу: ни рамки, ни фоновой панели в покое — просто текст
-         поверх арт-фона; при наведении/фокусе на всю ширину пункта плавно (анимированно,
-         Opacity) проявляется градиентная планка-подсветка от края до края меню, без отдельной
-         акцентной рейки — сам пункт и есть подсветка, вплотную к шкале на фоне (requirement:
-         "кнопки рядом со шкалой, подсвечивается градиентом сама кнопка"). Только для
-         MainMenuView — остальные меню (пауза и т.д.) сознательно не трогаются, у них
-         по-прежнему MenuButtonStyle, т.к. референс был именно про главный экран. -->
     <Style x:Key="MainMenuButtonStyle" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource PrimaryFont}"/>
-        <Setter Property="FontSize" Value="28"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="24,18"/>
-        <Setter Property="Margin" Value="0"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="30"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="#A0ACBA"/>
+        <Setter Property="Height" Value="69"/>
+        <Setter Property="Padding" Value="43,0,0,0"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Grid>
-                        <Border x:Name="Highlight" Opacity="0" HorizontalAlignment="Stretch">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                    <GradientStop Color="#4DFFFFFF" Offset="0"/>
-                                    <GradientStop Color="#17FFFFFF" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
-                        <ContentPresenter x:Name="Presenter"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                    <Grid Background="Transparent">
+                        <Grid x:Name="Highlight" Visibility="Collapsed" IsHitTestVisible="False">
+                            <Border>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#BC7496B7" Offset="0"/>
+                                        <GradientStop Color="#745D748D" Offset="0.53"/>
+                                        <GradientStop Color="#16526B83" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <Border Width="4" HorizontalAlignment="Left" Background="#EFFAFF">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#6DCDFF" BlurRadius="24" ShadowDepth="0" Opacity="0.95"/>
+                                </Border.Effect>
+                            </Border>
+                        </Grid>
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Highlight" Storyboard.TargetProperty="Opacity"
-                                                         To="1" Duration="0:0:0.18"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Highlight" Storyboard.TargetProperty="Opacity"
-                                                         To="0" Duration="0:0:0.18"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="Highlight" Property="Visibility" Value="Visible"/>
+                            <Setter Property="Foreground" Value="#F1F7FD"/>
                         </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Highlight" Storyboard.TargetProperty="Opacity"
-                                                         To="1" Duration="0:0:0.18"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Highlight" Storyboard.TargetProperty="Opacity"
-                                                         To="0" Duration="0:0:0.18"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsFocused, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=StackPanel}}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Highlight" Property="Visibility" Value="Visible"/>
+                            <Setter Property="Foreground" Value="#F1F7FD"/>
+                        </MultiDataTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Highlight" Property="Opacity" Value="0.75"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Opacity" Value="0.4"/>
+                            <Setter TargetName="Highlight" Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="Foreground" Value="#738191"/>
+                            <Setter Property="Cursor" Value="Arrow"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

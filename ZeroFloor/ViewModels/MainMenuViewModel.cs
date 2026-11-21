@@ -17,7 +17,6 @@ public sealed class MainMenuViewModel : ViewModelBase
         NewGameCommand = new AsyncRelayCommand(StartNewGameAsync);
         ContinueGameCommand = new AsyncRelayCommand(ContinueGameAsync, () => _services.SaveService.HasAnySave);
         LoadGameCommand = new RelayCommand(_ => OpenLoadScreen());
-        GalleryCommand = new RelayCommand(_ => OpenGallery());
         SettingsCommand = new RelayCommand(_ => OpenSettings());
         ExitCommand = new RelayCommand(_ => ConfirmExit());
     }
@@ -29,7 +28,6 @@ public sealed class MainMenuViewModel : ViewModelBase
     public ICommand NewGameCommand { get; }
     public ICommand ContinueGameCommand { get; }
     public ICommand LoadGameCommand { get; }
-    public ICommand GalleryCommand { get; }
     public ICommand SettingsCommand { get; }
     public ICommand ExitCommand { get; }
 
@@ -73,9 +71,6 @@ public sealed class MainMenuViewModel : ViewModelBase
             currentSnapshotProvider: null,
             onSlotLoaded: data => _services.Navigation.NavigateTo(new NovelViewModel(_services, data)),
             onBack: OnReturnToMenu));
-
-    private void OpenGallery() =>
-        _services.Navigation.NavigateTo(new GalleryViewModel(OnReturnToMenu));
 
     private void OpenSettings() =>
         _services.Navigation.NavigateTo(new SettingsViewModel(_services, OnReturnToMenu));

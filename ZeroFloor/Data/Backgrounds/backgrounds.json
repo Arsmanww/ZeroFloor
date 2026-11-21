@@ -2,7 +2,7 @@
   {
     "backgroundId": "main_menu",
     "title": "Главное меню",
-    "imagePath": "Assets/Backgrounds/main_menu.png",
+    "imagePath": "Assets/Backgrounds/main_menu_clean.png",
     "description": "Вид на Вертикаль с крыши — фон главного меню.",
     "chapters": []
   },
